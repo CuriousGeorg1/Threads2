@@ -12,7 +12,6 @@ public class App4 {
             new Opiskelija(kulho).start();
         }
     }
-
 }
 
 
@@ -27,13 +26,21 @@ class Boolikulho {
          * voi olla hyvä idea odottaa sen tyhjenemistä...
          */
 
-
-        if (booliValmis) {
+        while (booliValmis) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Thread Interrupted");
+            }
+        }
+        if (booliValmis) { //"Turha" tarkastus
             booli = booli + ", " + boolinNimi;
             System.out.printf("Boolimalja tulvii juomia %s!%n", booli);
         } else {
             this.booli = boolinNimi;
             booliValmis = true; // Boolivastaava täyttää booliastian
+            notifyAll();
             System.out.println("Booli valmis: " + booli);
         }
     }
@@ -44,11 +51,21 @@ class Boolikulho {
          * kannattaa odottaa, että sinne ilmestyy jotain...
          */
 
-        if (!booliValmis) {
+        while(!booliValmis) {
+            try{
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Thread interrupted");
+            }
+        }
+
+        if (!booliValmis) { //"turha" tarkastus
             System.out.println(juoja + " sai käteensä tyhjän boolimaljan");
         } else {
             booliValmis = false; // Opiskelija juo boolin
             System.out.println(juoja + " nautti boolin " + booli);
+            notifyAll();
         }
 
     }

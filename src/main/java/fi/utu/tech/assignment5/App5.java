@@ -100,21 +100,15 @@ class BankTransfer implements Runnable {
      */
     @Override
     public void run() {
+        Account first = (from.compareTo(to) < 0) ? from : to;
+        Account second = (from.compareTo(to) > 0) ? to : from;
         // Lukitan 1. tili
-        synchronized (from) {
+        synchronized (first) {
             // Lukko ensimmäiseen tiliin saatu, aloitetaan toisen tilin lukitus
-            synchronized (to) {
+            synchronized (second) {
                 // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja suoritetaan siirto,
                 // jos lakiehdot täyttyvät
                 if ((from.getBalance() - amount) > 0 && (to.getBalance() + amount) <= 1000) {
-                    /*
-                     * Jos tässä kohtaa toinen siirtotapahtuma tekisi siirron, siirto voisi mennä
-                     * yli lain rajojen kilpailutilanteen sattuessa. Lukot estävät sen tällä hetkellä.
-                     * Alla oleva sleep tekee kilpailutilanteista todennäköisempiä, siltä varalta,
-                     * että ratkaisunne aiheuttaa niitä. 
-                     * Sleepin poistaminen vähentää kilpailutilanteen riskiä, mutta
-                     * ei silti poista sen teoreettista mahdollisuutta ilmaantua.
-                     */ 
                     try {Thread.sleep(rnd.nextInt(500));} catch (InterruptedException ie) {}
                     // Tehdään aktuaalinen tilisiirto
                     from.withdraw(amount);

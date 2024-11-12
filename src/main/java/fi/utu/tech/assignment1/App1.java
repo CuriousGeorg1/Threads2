@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 public class App1 {
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
         Count sharedCount = new Count();
 
         // Luodaan ja käynnistetään threadCount verran laskijasäikeitä
@@ -21,6 +22,7 @@ public class App1 {
         });
          
         System.out.printf("Got %d, expected %d%n", sharedCount.getCount(), threadCount);
+        System.out.printf("Total time for grading: %d ms%n", System.currentTimeMillis()-startTime);
     }
 }
 
@@ -50,14 +52,16 @@ class Counter extends Thread {
          * This thread's purpose in life is to 
          * increase the value of the shared count by one
          */
-        int oldCount = count.getCount();
-        // Alla oleva sleep ei ole pakollinen ongelman ilmenemiselle,
-        // mutta se lisää esiintymisen todennäköisyyttä
-        try {
-			Thread.sleep((long) (100 * Math.random()));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-        count.setCount(oldCount + 1);
+        synchronized (count) {
+            int oldCount = count.getCount();
+            // Alla oleva sleep ei ole pakollinen ongelman ilmenemiselle,
+            // mutta se lisää esiintymisen todennäköisyyttä
+            try {
+                Thread.sleep((long) (100 * Math.random()));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            count.setCount(oldCount + 1);
+        }
     }
 }

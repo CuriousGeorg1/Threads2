@@ -29,7 +29,7 @@ public class App2 {
 class ListEditor extends Thread {
 
     List<Integer> l;
-    private final int count;
+    private  final int count;
 
     public ListEditor(List<Integer> l, int count) {
         this.l = l;
@@ -38,8 +38,10 @@ class ListEditor extends Thread {
 
     @Override
     public void run() {
-        for (int i=0; i<count;i++) {
-            l.add(123);
+        for (int i = 0; i < count; i++) {
+            synchronized (l) {
+                l.add(123);
+            }
         }
     }
 }
