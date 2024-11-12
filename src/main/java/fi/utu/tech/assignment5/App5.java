@@ -108,11 +108,9 @@ class BankTransfer implements Runnable {
             synchronized (second) {
                 // Säie sai yksinoikeudet molempiin tileihin, tarkistetaan tilien kate ja suoritetaan siirto,
                 // jos lakiehdot täyttyvät
-                if ((from.getBalance() - amount) > 0 && (to.getBalance() + amount) <= 1000) {
+                if (from.legalTransfer(to, amount)) {
                     try {Thread.sleep(rnd.nextInt(500));} catch (InterruptedException ie) {}
                     // Tehdään aktuaalinen tilisiirto
-                    from.withdraw(amount);
-                    to.deposit(amount);
                 }
             }
         }
@@ -135,6 +133,21 @@ class Account implements Comparable<Account> {
      */
     public Account(int accountNumber) {
         this.accountNumber = Math.abs(accountNumber);
+    }
+
+    /**
+     * Tarkastaa ehdot tilisiirrolle ja suorittaa siirrot
+     * @param to tili jolle halutaan siirtää rahaa
+     * @param amount siirrettävän rahan määrä
+     * @return palauttaa totuusarvon true jos siirto on laillinen ja suoritetaan, ja false jos siirto on laiton
+     */
+    public synchronized boolean legalTransfer(Account to, double amount) {
+        if(this.balance >= amount && (to.balance + amount <= 1000)) {
+            this.withdraw(amount);
+            to.deposit(amount);
+            return true;
+        }
+        return false;
     }
 
     /**
